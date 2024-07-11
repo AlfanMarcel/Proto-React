@@ -38,7 +38,7 @@ const Audit = () => {
       })
       .catch(error => {
         console.error('Error inserting audit data:', error);
-        Alert.alert('Error', 'An error occurred while inserting audit data');
+        Alert.alert('Error', 'ID audit sama coba isi ID yang berbeda');
       });
   };
 
