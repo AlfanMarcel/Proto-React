@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Button, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
@@ -24,6 +24,47 @@ const Result = () => {
         setLoading(false); // Set loading state to false after fetching data
       });
   };
+
+  const handleEditPress = (item) => { // Use the entire item object
+    const { id } = item; // Extract the ID from the item object
+    navigation.navigate('edit', {id });
+  };
+
+  const handleDeletePress = (item) => {
+    const { id } = item;
+    Alert.alert(
+      'Delete Confirmation',
+      'Are you sure you want to delete this audit entry?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteAudit(id), // Pass id directly to deleteAudit
+        },
+      ],
+      { cancelable: false }
+    );
+  };  
+
+  const deleteAudit = async (id) => {
+    try {
+      const response = await axios.delete(`http://192.168.0.112:3000/hasil_audit/${id}`);
+      if (response.data.message === 'Audit deleted successfully') {
+        Alert.alert('Success', 'Audit deleted successfully');
+        fetchData(); // Refresh the data after deletion
+      } else {
+        Alert.alert('Error', 'Failed to delete audit');
+      }
+    } catch (error) {
+      console.error('Error deleting audit:', error);
+      Alert.alert('Error', 'An error occurred while deleting audit');
+    }
+  };
+  
 
   useEffect(() => {
     fetchData(); // Fetch data when component mounts
@@ -91,8 +132,8 @@ const Result = () => {
                 <Text style={styles.tableCell}>{item.area}</Text>
                 <Text style={styles.tableCell}>{formatDate(item.tanggal_audit)}</Text>
                 <Text style={styles.tableCell}>{formatDate(item.tanggal_close)}</Text>
-                <Button title="edit" color="green"/>
-                <Button title="delete" color="red"/>
+                <Button title="edit"  onPress={() => handleEditPress(item)} color="green"/>
+                <Button title="delete" onPress={() => handleDeletePress(item)} color="red"/>
               </View>
             ))}
             

@@ -31,7 +31,7 @@ db.connect((err) => {
 });
 
 // Secret key for JWT
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = "Jsj+30lQNEwp1tJBeEY+9j3LrrRLuvi/iojG23skh1g=";
 
 // Middleware to authenticate JWT token
 const authenticateToken = (req, res, next) => {
@@ -68,7 +68,6 @@ app.post('/register', async (req, res) => {
 // Login route
 app.post('/login', (req, res) => {
   const { mail, password } = req.body;
-
   const query = 'SELECT * FROM user WHERE mail = ?';
   db.query(query, [mail], async (err, results) => {
     if (err) {
@@ -89,7 +88,44 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Audit routes without token authentication
+app.get('/edit', (req, res) => {
+  const { id } = req.query;
+  const query = 'SELECT * FROM audit WHERE id = ?';
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: 'Audit not found' });
+    }
+  });
+});
+
+
+
+app.put('/edit', (req, res) => {
+  const { id } = req.query;
+  const { user_id, judul, area, tanggal_audit, tanggal_close } = req.body;
+
+  const query = 'UPDATE audit SET user_id = ?, judul = ?, area = ?, tanggal_audit = ?, tanggal_close = ? WHERE id = ?';
+  db.query(query, [user_id, judul, area, tanggal_audit, tanggal_close, id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.affectedRows === 0) {
+      res.status(404).json({ message: 'Audit not found' });
+    } else {
+      res.json({ message: 'Audit data updated successfully' });
+    }
+  });
+});
+
 app.get('/hasil_audit', (req, res) => {
   const query = 'SELECT * FROM audit';
   db.query(query, (err, results) => {
@@ -114,6 +150,24 @@ app.post('/audit', (req, res) => {
     res.json({ message: 'Audit data inserted successfully' });
   });
 });
+
+app.delete('/hasil_audit/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM audit WHERE id = ?';
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.affectedRows === 0) {
+      res.status(404).json({ message: 'Audit not found' });
+    } else {
+      res.json({ message: 'Audit deleted successfully' });
+    }
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://192.168.0.112:${port}`);

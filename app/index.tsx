@@ -20,13 +20,12 @@ function Index() {
 
 function App() {
   return (
-    <View style={tw`bg-ash-500 h-100`}>
+    <View style={tw`bg-slate-300 h-100`}>
       <Text style={tw`text-black text-xl font-bold`}>
         HomePage!
         
       </Text>
       <Link href="login">Login</Link>
-      <Link href="/welcome">welcome</Link>
     </View>
   );
 }
